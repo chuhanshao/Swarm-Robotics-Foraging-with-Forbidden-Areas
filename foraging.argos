@@ -1,0 +1,102 @@
+<?xml version="1.0" ?>
+<argos-configuration>
+
+  <!-- ************************* -->
+  <!-- * General configuration * -->
+  <!-- ************************* -->
+  <framework>
+    <!-- To make ARGoS faster, you can set 'threads' to some number greater than 0 -->
+    <system threads="100" />
+    <!-- To change the random seed for each experiment repetition, you can set 'random_seed' to whatever value you like -->
+    <experiment length="1000" ticks_per_second="10" random_seed="0" />
+  </framework>
+
+  <!-- ****************** -->
+  <!-- * Loop functions * -->
+  <!-- ****************** -->
+  <loop_functions library="./build/libloop_func" label="loop_function" output="Results.txt" />
+
+  <!-- *************** -->
+  <!-- * Controllers * -->
+  <!-- *************** -->
+  <controllers>
+    <!-- You can tweak some parameters of the sensors and actuators.
+         For instance, you can set 'show_rays' to "true" to some of the sensors
+         to see the rays cast by the device, thus making debugging easier.
+         By default, rays are never shown. Dealing with rays makes ARGoS a
+         little slower, so, if you don't need the rays, switch them off.
+         For more information, type:
+         $ argos -h
+    -->
+    <lua_controller id="controller">
+      <actuators>
+        <differential_steering implementation="default" />
+        <range_and_bearing implementation="default"/>
+        <leds implementation="default" medium="leds"/>
+      </actuators>
+      <sensors>
+        <differential_steering implementation="default" />
+        <footbot_proximity implementation="default" show_rays="false" />
+        <footbot_motor_ground implementation="rot_z_only" />
+        <footbot_base_ground implementation="rot_z_only" />
+        <range_and_bearing implementation="medium" medium="rab" show_rays="false"/>
+        <colored_blob_omnidirectional_camera implementation="rot_z_only" medium="leds" show_rays="false"/>
+        <footbot_light implementation="rot_z_only" show_rays="false"/>
+      </sensors>
+      <!-- If you want to execute ARGoS with an empty script, use this syntax -->
+      <params script="./Swarm_Robotics.lua">
+      <!-- If you want to execute ARGoS with a script preloaded, use this syntax
+           Note: the preloaded script does not appear in the Lua editor! (that's a TODO) -->
+      </params>
+    </lua_controller>
+  </controllers>
+
+  <!-- *********************** -->
+  <!-- * Arena configuration * -->
+  <!-- *********************** -->
+  <!-- Note: rotations are specified and performed in ZYX order -->
+  <arena size="15, 15, 2.0" center="0, 0, 0">
+
+    <!-- Floor -->
+    <floor id="floor" source="loop_functions" pixels_per_meter="100" />
+
+   <!-- Light over the source -->
+   <light id="light" position="0,0,0.5" orientation="0,0,0" color="yellow" intensity="10.0" medium="leds"/>
+
+    <!-- Foot-bots -->
+
+    <distribute>
+      <position method="uniform" min="-3,-3,0" max="3,3,0" />
+      <orientation method="uniform" min="0,0,0" max="360,0,0" />
+      <entity quantity="30" max_trials="20" base_num="1">
+        <foot-bot id="fb" omnidirectional_camera_aperture="80" rab_range="1.5" >
+          <controller config="controller" />
+        </foot-bot>
+      </entity>
+    </distribute>
+  </arena>
+
+  <!-- ******************* -->
+  <!-- * Physics engines * -->
+  <!-- ******************* -->
+  <physics_engines>
+    <!--dynamics2d id="dyn2d" iterations="50" /-->
+    <dynamics2d id="dyn2d"/>
+  </physics_engines>
+
+  <!-- ********* -->
+  <!-- * Media * -->
+  <!-- ********* -->
+  <media>
+    <led id="leds" grid_size="15,15,1"/>
+    <range_and_bearing id="rab" index="grid" grid_size="15,15,1"/>
+  </media>
+
+  <!-- ****************** -->
+  <!-- * Visualization * -->
+  <!-- ****************** -->
+
+
+
+
+</argos-configuration>
